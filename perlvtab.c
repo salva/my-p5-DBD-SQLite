@@ -8,7 +8,8 @@
 #define NEED_sv_2pv_nolen
 #include "ppport.h" 
 
-#include <sqlite3ext.h>
+#include "perlvtab.h"
+
 SQLITE_EXTENSION_INIT1
 
 #ifdef MULTIPLICITY
@@ -77,7 +78,7 @@ perlCreateOrConnect(sqlite3 *db,
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
-    XPUSHs(sv_2mortal(newSVpv("SQLite::VirtualTable", 0)));
+    XPUSHs(sv_2mortal(newSVpv(VTAB_MODULE_LOADER, 0)));
     XPUSHs(sv_2mortal(newSVpv(vtm_name[method], 0)));
 
     for (i = 0; i<argc; i++) {
@@ -94,7 +95,8 @@ perlCreateOrConnect(sqlite3 *db,
     PUTBACK;
     vtabsv = ST(0);
     if (!count || SvTRUE(ERRSV) || !SvOK(vtabsv)) {
-        Perl_warn(aTHX_  "SQLite::VirtualTable::%s method failed: %s\n",
+        Perl_warn(aTHX_  "%s::%s method failed: %s\n",
+		  VTAB_MODULE_LOADER,
                   vtm_name[method],
                   SvTRUE(ERRSV) ? SvPV_nolen(ERRSV) : "method returned undef");
         rc = SQLITE_ERROR;

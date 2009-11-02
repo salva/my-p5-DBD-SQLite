@@ -560,10 +560,32 @@ sub DELETE {
     die "deletion of entry $_[1] is forbidden";
 }
 
+
+#======================================================================
+# Virtual Table module loader
+package DBD::SQLite::_VTabLoader;
+
+my %unesc = ( n => "\n",
+	      r => "\r",
+	      t => "\t" );
+
+sub _CREATE_OR_CONNECT {
+    my $self = shift;
+    my $method = shift;
+    my ($class) = splice @_, 3, 1;
+    $class =~ s{\\([tnr\\"' =:#!])|\\u([\da-fA-F]{4})|["']}{
+	           ( defined $1 ? $unesc{$1} || $1 :
+		     defined $2 ? chr hex $2       :
+		                  '' )
+	       }ge;
+    $class =~ /\w+(?:::\w+)*/
+        or die "invalid package name '$class'";
+    eval "require $class";
+    $@ and die "Can't load package $class: $@";
+    $class->$method(@_);
+}
+
 1;
-
-
-
 
 __END__
 
