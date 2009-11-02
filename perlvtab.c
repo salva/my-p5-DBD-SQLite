@@ -12,7 +12,7 @@
 SQLITE_EXTENSION_INIT1
 
 #ifdef MULTIPLICITY
-#  define my_dTHX(a) pTHXx = ((PerlInterpreter*)(a))
+#  define my_dTHX(a) pTHXx = ((PerlInterpreter*)((a) ? (a) : PERL_GET_THX))
 #else
 #  define my_dTHX(a) dNOOP
 #endif
@@ -805,7 +805,7 @@ cleanup:
 }
 
 
-sqlite3_module perlModule = {
+sqlite3_module vtab_perl_module = {
     1,
     perlCreate,
     perlConnect,
@@ -830,7 +830,8 @@ sqlite3_module perlModule = {
 
 static char *argv[] = { "perlvtab",
 			"-e",
-			"require SQLite::VirtualTable;\n",
+			"$SQLite::VirtualTable::EMBEDED=1;"
+			"require SQLite::VirtualTable",
 			NULL };
 
 EXTERN_C void boot_DynaLoader (pTHX_ CV* cv);
@@ -855,6 +856,14 @@ int sqlite3_extension_init(sqlite3 *db, char **pzErrMsg,
 
     SQLITE_EXTENSION_INIT2(pApi)
 
-    sqlite3_create_module(db, "perl", &perlModule, my_perl);
+    sqlite3_create_module(db, "perl", &vtab_perl_module, my_perl);
+    return SQLITE_OK;
+}
+
+int dbd_sqlite_init_vtab_extension(sqlite3 *db, char **pzErrMsg, 
+				   const sqlite3_api_routines *pApi) {
+    SQLITE_EXTENSION_INIT2(pApi)
+
+    sqlite3_create_module(db, "perl", &vtab_perl_module, NULL);
     return SQLITE_OK;
 }
