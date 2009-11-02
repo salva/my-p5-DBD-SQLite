@@ -1,6 +1,7 @@
 #define PERL_NO_GET_CONTEXT
 
 #include "SQLiteXS.h"
+#include "perlvtab.h"
 
 DBISTATE_DECLARE;
 
@@ -993,6 +994,20 @@ sqlite_db_enable_load_extension(pTHX_ SV *dbh, int onoff)
         char* const errmsg = form("sqlite_enable_load_extension failed with error %s", sqlite3_errmsg(imp_dbh->db));
         sqlite_error(dbh, rc, errmsg);
         return FALSE;
+    }
+    return TRUE;
+}
+
+int
+sqlite_db_enable_vtab_extension(pTHX_ SV *dbh)
+{
+    D_imp_dbh(dbh);
+    int rc;
+    
+    rc = sqlite3_create_module( imp_dbh->db, "perl", &vtab_perl_module, NULL );
+    if ( rc != SQLITE_OK ) {
+	char* const errmsg = form("sqlite_enable_vtab_extension failed with error %s", sqlite3_errmsg(imp_dbh->db));
+	return FALSE;
     }
     return TRUE;
 }

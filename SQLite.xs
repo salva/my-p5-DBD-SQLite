@@ -53,6 +53,18 @@ enable_load_extension(dbh, onoff)
         RETVAL
 
 static int
+enable_vtab_extension(dbh)
+    SV *dbh
+    ALIAS:
+        DBD::SQLite::db::sqlite_enable_vtab_extension = 1
+    CODE:
+    {
+        RETVAL = sqlite_db_enable_vtab_extension(aTHX_ dbh);
+    }
+    OUTPUT:
+        RETVAL
+
+static int
 create_aggregate(dbh, name, argc, aggr)
     SV *dbh
     char *name

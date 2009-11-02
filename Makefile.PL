@@ -307,7 +307,7 @@ WriteMakefile(
 	),
 	OBJECT           => ( $sqlite_local
 		? '$(O_FILES)'
-		: 'SQLite.o dbdimp.o'
+		: 'SQLite.o dbdimp.o perlvtab.o'
 	),
 	OPTIMIZE         => '-O2',
 	clean            => {

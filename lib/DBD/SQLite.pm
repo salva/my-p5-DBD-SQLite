@@ -52,6 +52,7 @@ sub driver {
         DBD::SQLite::db->install_method('sqlite_backup_from_file');
         DBD::SQLite::db->install_method('sqlite_backup_to_file');
         DBD::SQLite::db->install_method('sqlite_enable_load_extension');
+	DBD::SQLite::db->install_method('sqlite_enable_vtab_extension');
         $methods_are_installed++;
     }
 
