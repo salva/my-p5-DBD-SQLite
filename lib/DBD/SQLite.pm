@@ -580,8 +580,10 @@ sub _CREATE_OR_CONNECT {
 	       }ge;
     $class =~ /\w+(?:::\w+)*/
         or die "invalid package name '$class'";
-    eval "require $class";
-    $@ and die "Can't load package $class: $@";
+    unless ($class->can($method)) {
+	eval "require $class";
+	$@ and die "Can't load package $class: $@";
+    }
     $class->$method(@_);
 }
 
