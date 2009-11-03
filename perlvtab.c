@@ -203,7 +203,7 @@ perlDropOrDisconnect(sqlite3_vtab *vtab, int method) {
     int count;
     int rc = SQLITE_OK;
 
-    assert(method < VTM__TOP);
+    /* assert(method < VTM__TOP); */
 
     ENTER;
     SAVETMPS;
